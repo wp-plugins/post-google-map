@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: map, google, posts, plot, addresses, API
 Requires at least: 2.6
 Tested up to: 2.8.1
-Stable tag: 1.0.0.0
+Stable tag: 1.1.0.0
 
 Allows posts/pages to be linked to addresses and display plotted on a Google Map in a sidebar widget
 
@@ -25,6 +25,9 @@ Plugin funding provided by: http://injersey.com
 3. Settings page showing multiple options for the map display
 
 == Changelog ==
+
+= 1.1 =
+* Fixed issue with address not saving if post wasn't saved first
 
 = 1.0 =
 * First official release

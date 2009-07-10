@@ -2,8 +2,8 @@
 /*
 Plugin Name: Post Google Map
 Plugin URI: http://webdevstudios.com/support/wordpress-plugins/
-Description: Allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
-Version: 1.0
+Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
+Version: 1.1
 Author: WebDevStudios.com
 Author URI: http://webdevstudios.com
 
@@ -180,11 +180,31 @@ function del_gmp_address($deladdy) {
 		}
 	}
 }
+
+function save_function($post_ID) {
+   echo "ddd".$post_ID;
+   //return $post_id;
+}
+
 function post_meta_tags() {
 	global $wpdb, $alreadyran;
+	$gmp_id = $_POST["gmp_id"];
+
+	//if post not created yet create it
+	if ($gmp_id==0){
+		$title=$_POST["post_title"];
+		$sql = "SELECT ID FROM ".$wpdb->prefix."posts order by ID desc LIMIT 1";
+		echo $sql;
+		//exit();
+		$rs = mysql_query($sql);
+		if ($rs) {
+			while ($r = mysql_fetch_assoc($rs)) {
+				$gmp_id=$r['ID'];
+			}
+		}
+	}
 
 	//save the form data from the post/page meta box
-	$gmp_id = $_POST["gmp_id"];
 	if (isset($gmp_id) && !empty($gmp_id) && $alreadyran != "1") {
 		$id = $gmp_id;
 		$alreadyran = "1";
@@ -397,7 +417,7 @@ function gmp() {
             <th scope="row"></th>
             <td>
             	<div class="submit">
-                	<input type="submit" name="gmp_submit" value="Add Address" tabindex=100  /><br>*make sure you save your post before adding a new address
+                	<input type="submit" name="gmp_submit" value="Add Address" tabindex=100  /><br>*Post title must exist to save address
             	</div>
             </td>
             </tr>
