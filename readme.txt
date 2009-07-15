@@ -1,12 +1,12 @@
 === Post Google Map ===
 Contributors: williamsba1, wds-scott, messenlehner
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3084056
-Tags: map, google, posts, plot, addresses, API
+Tags: map, google, posts, plot, widget, address, API, sidebar
 Requires at least: 2.6
 Tested up to: 2.8.1
-Stable tag: 1.1.0.0
+Stable tag: 1.2.0.0
 
-Allows posts/pages to be linked to addresses and display plotted on a Google Map in a sidebar widget
+Add addresses to posts and pages.  Addresses are displayed plotted on a Google Map in a sidebar widget for each post.
 
 == Description ==
 
@@ -14,7 +14,7 @@ This plugin allows you to add multiple addresses to a post/page and have those a
 Hovering over a plot will display the title of the post, address, and also a thumbnail from the post if any images exist. Easily add and delete a single or multiple addresses to each post/page. Viewing a single post/page displays only addresses attached to that post/page, viewing anything else will show the most recent plots across your entire site.
 You can also set a custom title and description for each address saved. If no title or description is entered the post title and excerpt will be used.
 
-Custom plot markers can be upload to the markers folder
+Custom plot markers can be upload to the markers folder.
 
 Plugin funding provided by: http://injersey.com
 
@@ -25,6 +25,9 @@ Plugin funding provided by: http://injersey.com
 3. Settings page showing multiple options for the map display
 
 == Changelog ==
+
+= 1.2 =
+* Incorporated WordPress HTTP API for wider support of Google Maps API call
 
 = 1.1 =
 * Fixed issue with address not saving if post wasn't saved first
@@ -47,10 +50,6 @@ That’s it! Addresses will automatically be plotted on the map for each post/page
 = Does this plugin work with WordPress MU? =
 
 Absolutely!  This plugin has been tested and verified to work on the most current version of WordPress MU
-
-= Do I have to save the post before adding addresses? =
-
-Yes.  Addresses cannot be added to the post/page before a draft is saved. This is a bug we are working on fixing
 
 == Plugin Support ==
 [Post Google Map Support](http://webdevstudios.com/support/wordpress-plugins/ "WordPress Plugins and Support Services")

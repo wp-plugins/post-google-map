@@ -1,4 +1,5 @@
 <?php
+//code to generate Google Map
 $post_id = $post;
 if (is_object($post_id)){
     $post_id = $post_id->ID;
@@ -44,7 +45,7 @@ If (is_array($gmp_arr)) {
         }
         $html.="</td></tr><tr>";
 
-        $thumb=get_post_image($post_id, 60);
+        $thumb=gmp_get_post_image($post_id, 60);
         if ($thumb!=""){
             $html.= "<td><a href=".$link.">".$thumb."</a></td>";
         }
