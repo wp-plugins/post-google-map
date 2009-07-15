@@ -3,10 +3,9 @@
 Plugin Name: Post Google Map
 Plugin URI: http://webdevstudios.com/support/wordpress-plugins/
 Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
-Version: 1.1
+Version: 1.2
 Author: WebDevStudios.com
 Author URI: http://webdevstudios.com
-
 */
 
 //hook for adding admin menus
@@ -181,11 +180,6 @@ function del_gmp_address($deladdy) {
 	}
 }
 
-function save_function($post_ID) {
-   echo "ddd".$post_ID;
-   //return $post_id;
-}
-
 function post_meta_tags() {
 	global $wpdb, $alreadyran;
 	$gmp_id = $_POST["gmp_id"];
@@ -194,8 +188,6 @@ function post_meta_tags() {
 	if ($gmp_id==0){
 		$title=$_POST["post_title"];
 		$sql = "SELECT ID FROM ".$wpdb->prefix."posts order by ID desc LIMIT 1";
-		echo $sql;
-		//exit();
 		$rs = mysql_query($sql);
 		if ($rs) {
 			while ($r = mysql_fetch_assoc($rs)) {
@@ -229,7 +221,11 @@ function post_meta_tags() {
 			$addressarr = array($gmp_address1, $gmp_city, $gmp_state, $gmp_zip);
 			$address = IMPLODE(",", $addressarr);
 			$iaddress = "http://maps.google.com/maps/geo?q=".urlencode($address)."&output=csv&key=".$key."";
-			$csv = file_get_contents($iaddress);
+			//$csv = file_get_contents($iaddress);
+
+			//use the WordPress HTTP API to call the Google Maps API and get coordinates
+			$csv = wp_remote_get($iaddress);
+			$csv = $csv["body"];
 
 			$csvSplit = split(",", $csv);
 			$status = $csvSplit[0];
@@ -313,7 +309,7 @@ function gmp() {
 				{
 				if($bgc==""){
 					$bgc="#eeeeee";
-				}else{
+				}else{\
 					$bgc="";
 				}
 				?>
@@ -554,11 +550,11 @@ function gmp_options() {
 		. ' value="' . attribute_escape(__('Save Changes')) . '"'
 		. ' />'
 	. '</p></form>';
-	echo '<p>For support please visit our <a href="http://webdevstudios.com/support/wordpress-plugins/" target="_blank">WordPress Plugins Support page</a> | Version 1.0 by <a href="http://webdevstudios.com/" title="WordPress Development and Design" target="_blank">WebDevStudios.com</a></p>';
+	echo '<p>For support please visit our <a href="http://webdevstudios.com/support/wordpress-plugins/" target="_blank">WordPress Plugins Support page</a> | Version 1.2 by <a href="http://webdevstudios.com/" title="WordPress Development and Design" target="_blank">WebDevStudios.com</a></p>';
 	echo '</div>';
 }
 
-function get_post_image($post_id, $width=0, $height=0) {
+function gmp_get_post_image($post_id, $width=0, $height=0) {
 	$dimensions = "";
 	$post_id = explode(",", $post_id);
 	foreach ($post_id as $id) {
