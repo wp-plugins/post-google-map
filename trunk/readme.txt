@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: map, google, posts, plot, widget, address, API, sidebar
 Requires at least: 2.6
 Tested up to: 2.8.1
-Stable tag: 1.2.0.0
+Stable tag: 1.3.0.0
 
 Add addresses to posts and pages.  Addresses are displayed plotted on a Google Map in a sidebar widget for each post.
 
@@ -18,6 +18,8 @@ Custom plot markers can be upload to the markers folder.
 
 Plugin funding provided by: http://injersey.com
 
+Works with WordPress and WordPress MU 2.8.1
+
 == Screenshots ==
 
 1. Google Map Widget displaying multiple plots on a map for a given post
@@ -25,6 +27,9 @@ Plugin funding provided by: http://injersey.com
 3. Settings page showing multiple options for the map display
 
 == Changelog ==
+
+= 1.3 =
+* Fixed headers already sent error
 
 = 1.2 =
 * Incorporated WordPress HTTP API for wider support of Google Maps API call
@@ -50,6 +55,12 @@ That’s it! Addresses will automatically be plotted on the map for each post/page
 = Does this plugin work with WordPress MU? =
 
 Absolutely!  This plugin has been tested and verified to work on the most current version of WordPress MU
+
+= What does the error "The Google Maps API server rejected your request" mean? =
+
+You need to sign up for a Google Map API for your domain.  
+
+You can get a free API key here: http://code.google.com/apis/maps/signup.html
 
 == Plugin Support ==
 [Post Google Map Support](http://webdevstudios.com/support/wordpress-plugins/ "WordPress Plugins and Support Services")
