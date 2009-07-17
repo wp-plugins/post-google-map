@@ -3,11 +3,12 @@
 Plugin Name: Post Google Map
 Plugin URI: http://webdevstudios.com/support/wordpress-plugins/
 Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
-Version: 1.2
+Version: 1.3
 Author: WebDevStudios.com
 Author URI: http://webdevstudios.com
 */
 
+$gmp_version = "1.3";
 //hook for adding admin menus
 add_action('admin_menu', 'gmp_menu');
 
@@ -174,7 +175,7 @@ function del_gmp_address($deladdy) {
 					add_post_meta($id, 'gmp_arr', $gmp_arr[$row]);
 				}
 			}
-			echo "<div id=message class=updated fade>Address deleted successfully.</div>";
+			//echo "<div id=message class=updated fade>Address deleted successfully.</div>";
 			$isdeleted = true;
 		}
 	}
@@ -286,7 +287,7 @@ function gmp() {
                 <p>
                     <strong>
                     Google Maps API key has not been saved.
-                    <a href="<?php echo admin_url( 'options-general.php?page=post-google-map/post-google-map.php' ); ?>">Enter Google Maps API Key</a>
+                    <a href="<?php echo admin_url( 'options-general.php?page=post-google-map.php' ); ?>">Enter Google Maps API Key</a>
                     to enable post mapping.
                     </strong>
                 </p>
@@ -550,7 +551,7 @@ function gmp_options() {
 		. ' value="' . attribute_escape(__('Save Changes')) . '"'
 		. ' />'
 	. '</p></form>';
-	echo '<p>For support please visit our <a href="http://webdevstudios.com/support/wordpress-plugins/" target="_blank">WordPress Plugins Support page</a> | Version 1.2 by <a href="http://webdevstudios.com/" title="WordPress Development and Design" target="_blank">WebDevStudios.com</a></p>';
+	echo '<p>For support please visit our <a href="http://webdevstudios.com/support/wordpress-plugins/" target="_blank">WordPress Plugins Support page</a> | Version 1.3 by <a href="http://webdevstudios.com/" title="WordPress Development and Design" target="_blank">WebDevStudios.com</a> | <a href="http://twitter.com/webdevstudios" target="_blank">Twitter</a></p>';
 	echo '</div>';
 }
 
