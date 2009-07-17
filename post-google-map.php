@@ -258,7 +258,7 @@ function post_meta_tags() {
 
 		//save address array as option gmp_arr
 		add_post_meta($id, 'gmp_arr', $gmp_arr);
-		echo "<div id=message class=updated fade>Address added successfully.</div>";
+		//echo "<div id=message class=updated fade>Address added successfully.</div>";
 	}
 
 }
@@ -286,7 +286,7 @@ function gmp() {
                 <p>
                     <strong>
                     Google Maps API key has not been saved.
-                    <a href="<?php echo admin_url( 'options-general.php?page=post-google-map.php' ); ?>">Enter Google Maps API Key</a>
+                    <a href="<?php echo admin_url( 'options-general.php?page=post-google-map/post-google-map.php' ); ?>">Enter Google Maps API Key</a>
                     to enable post mapping.
                     </strong>
                 </p>
