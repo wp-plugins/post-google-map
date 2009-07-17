@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: map, google, posts, plot, widget, address, API, sidebar
 Requires at least: 2.6
 Tested up to: 2.8.1
-Stable tag: 1.3.0.0
+Stable tag: 1.3.1.0
 
 Add addresses to posts and pages.  Addresses are displayed plotted on a Google Map in a sidebar widget for each post.
 
