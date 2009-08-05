@@ -2,18 +2,24 @@
 /*
 Plugin Name: Post Google Map
 Plugin URI: http://webdevstudios.com/support/wordpress-plugins/
-Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
-Version: 1.3.2
+Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Use shortcode [google-map] to display map directly in your post/page.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
+Version: 1.4
 Author: WebDevStudios.com
 Author URI: http://webdevstudios.com
 */
 
-$gmp_version = "1.3.2";
+$gmp_version = "1.4";
 //hook for adding admin menus
 add_action('admin_menu', 'gmp_menu');
 
 //hook for post/page custom meta box
 add_action('admin_menu', 'gmp_meta_box_add');
+
+//hook for add a map to the content
+add_filter('the_content', 'gmp_widget');
+
+//hook for loading widget
+add_action('plugins_loaded', 'gmp_widget_init');
 
 //save/update post/page custom fields from meta box
 $gmp_submit = $_POST["gmp_submit"];
@@ -25,9 +31,6 @@ If (isset($gmp_submit) && !empty($gmp_submit)) {
 //add_action('publish_post', 'post_meta_tags');
 //add_action('save_post', 'post_meta_tags');
 //add_action('edit_page_form', 'post_meta_tags');
-
-//hook for loading widget
-add_action('plugins_loaded', 'gmp_widget_init');
 
 //call function to delete an address
 If ($_GET['deladdy'] != "" && $isdeleted != true) {
@@ -55,14 +58,18 @@ function scrub_data($content){
 	$content = str_replace("'", "\'", $content);
 	return $content;
 }
+
 function gmp_widget_init() {
 	//widget code
 		if ( !function_exists('register_sidebar_widget') )
 			return;
-
-		function gmp_widget() {
+		function gmp_widget_init2() {
+			gmp_widget('xxx');
+		}
+		function gmp_widget($content) {
 			global $wpdb;
 			global $post;
+			
 			$key = get_option('post_gmp_params');
 			$imgpath = WP_PLUGIN_URL . '/post-google-map/markers/';
 
@@ -74,6 +81,10 @@ function gmp_widget_init() {
 			$gmp_marker_max = get_option('gmp_marker_max');
 			$gmp_marker_order = get_option('gmp_marker_order');
 
+			//random number for multiple map display
+			srand ((double) microtime( )*1000000);
+			$rn = rand( );
+			
 			//print out default categories
 			$CT="<div class='map_cats'>";
 			$cat=$_GET["cat"];
@@ -100,53 +111,70 @@ function gmp_widget_init() {
 				}
 			}
 			$CT.="</div>";
-			$map="var map = new GMap2(document.getElementById('map'));";
-			$map.="map.setCenter(new GLatLng(0,0),0);";
-			$map.="map.setUIToDefault();";
-			$map.="map.setMapType(".$gmp_map_type.");";
-			$map.="var bounds = new GLatLngBounds(); ";
+			$map="var map".$rn." = new GMap2(document.getElementById('map".$rn."'));";
+			$map.="map".$rn.".setCenter(new GLatLng(0,0),0);";
+			$map.="map".$rn.".setUIToDefault();";
+			$map.="map".$rn.".setMapType(".$gmp_map_type.");";
+			$map.="var bounds".$rn." = new GLatLngBounds(); ";
 
 			//if viewing a single post don't load plots by categories
 			$x=1;
-			if ($iCat_ID==""){
-				$y=0;
-				if (have_posts()) :
-					while (have_posts()) : the_post();
-						include("get_map.php");
-					endwhile;
-				endif;
+			//shortcode
+			//echo $content;
+			if ($content!="xxx") {
+				$map_type="short_code";
+				include("get_map.php");
+			}else{
+				if ($iCat_ID==""){
+					$y=0;
+					if (have_posts()) :
+						while (have_posts()) : the_post();
+							include("get_map.php");
+						endwhile;
+					endif;
+				}
+				if ($iCat_ID!="" || $y==0){
+					$recentPosts = new WP_Query();
+						$recentPosts->query('showposts='.$gmp_marker_max.'&cat='.$iCat_ID);
+						while ($recentPosts->have_posts()) : $recentPosts->the_post();
+							include("get_map.php");
+						endwhile;
+				}
 			}
-			if ($iCat_ID!="" || $y==0){
-				$recentPosts = new WP_Query();
-					$recentPosts->query('showposts='.$gmp_marker_max.'&cat='.$iCat_ID);
-					while ($recentPosts->have_posts()) : $recentPosts->the_post();
-						include("get_map.php");
-					endwhile;
-			}
-
-			$JS.="map.setZoom(map.getBoundsZoomLevel(bounds));";
-			$JS.="map.setCenter(bounds.getCenter());";
-			$JS.="map.zoomOut(); ";
+			$JS.="map".$rn.".setZoom(map".$rn.".getBoundsZoomLevel(bounds".$rn."));";
+			$JS.="map".$rn.".setCenter(bounds".$rn.".getCenter());";
+			$JS.="map".$rn.".zoomOut(); ";
 
 			$JS = $map.$JS;
-			echo $CT;
-			?>
-			<script src="http://maps.google.com/maps?file=api&v=1&key=<?php echo $key; ?>" type="text/javascript"></script>
-			<body onUnload="GUnload()">
-			<div id="map" style="width:100%;height:200px;"></div>
-			<div id="map-info"></div>
-			<script type="text/javascript">
-				<?php echo $JS; ?>
-				var info = document.getElementById('map-info');
-                info.innerHTML = '<?php echo $Default_HTML; ?>';
-			</script>
-			<?php
+			//echo $CT;
+			$themap=$CT;
+			$themap.="<script src='http://maps.google.com/maps?file=api&v=1&key=".$key."' type='text/javascript'></script>";
+			$themap.="<body onUnload='GUnload()'>";
+			
+			//temp code to increase height on shortcode map / next update will include shortcode parameters
+			if ($map_type=="short_code") {
+				$themap.="<div id='map".$rn."' style='width:100%;height:400px;'></div>";
+			}Else{
+				$themap.="<div id='map".$rn."' style='width:100%;height:200px;'></div>";
+			}
+			$themap.="<div id='map-info".$rn."'></div>";
+			$themap.="<script type='text/javascript'>";
+			$themap.=$JS;
+			$themap.="var info".$rn." = document.getElementById('map-info".$rn."');";
+			$themap.="info".$rn.".innerHTML = '".str_replace('[google-map]', '', $Default_HTML)."';";
+			$themap.="</script>";
+			if ($map_type=="short_code") {
+				return str_replace('[google-map]', $themap, $content);
+			}else{
+				echo $themap;
+			}
+			
 		}
 
 		if ( function_exists('wp_register_sidebar_widget') ) // fix for wordpress 2.2.1
-		  wp_register_sidebar_widget(sanitize_title('Post Google Map' ), 'Post Google Map', 'gmp_widget', array(), 1);
+		  wp_register_sidebar_widget(sanitize_title('Post Google Map' ), 'Post Google Map', 'gmp_widget_init2', array(), 1);
 		else
-		  register_sidebar_widget('Post Google Map', 'gmp_widget', 1);
+		  register_sidebar_widget('Post Google Map', 'gmp_widget_init2', 1);
 
 }
 
@@ -444,6 +472,7 @@ function update_options()
 
 
 function gmp_options() {
+	global $gmp_version;
 		# Acknowledge update
 
 		if ( isset($_POST['update_gmp_options'])
@@ -551,7 +580,7 @@ function gmp_options() {
 		. ' value="' . attribute_escape(__('Save Changes')) . '"'
 		. ' />'
 	. '</p></form>';
-	echo '<p>For support please visit our <a href="http://webdevstudios.com/support/wordpress-plugins/" target="_blank">WordPress Plugins Support page</a> | Version 1.3.2 by <a href="http://webdevstudios.com/" title="WordPress Development and Design" target="_blank">WebDevStudios.com</a> | <a href="http://twitter.com/webdevstudios" target="_blank">Twitter</a></p>';
+	echo '<p>For support please visit our <a href="http://webdevstudios.com/support/wordpress-plugins/" target="_blank">WordPress Plugins</a> and <a href="http://webdevstudios.com/support/forum/" target="_blank">Support Forum</a><br>Version '. $gmp_version .' by <a href="http://webdevstudios.com/" title="WordPress Development and Design" target="_blank">WebDevStudios.com</a> | <a href="http://twitter.com/webdevstudios" target="_blank">WDS on Twitter</a></p>';
 	echo '</div>';
 }
 
