@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: map, google, posts, plot, widget, address, API, sidebar
 Requires at least: 2.6
 Tested up to: 2.8.3
-Stable tag: 1.4.0.0
+Stable tag: 1.4.1.0
 
 Add addresses to posts and pages.  Addresses are displayed plotted on a Google Map in a sidebar widget or directly in the post.
 
@@ -25,6 +25,9 @@ Works with WordPress and WordPress MU 2.8.3
 3. Settings page showing multiple options for the map display
 
 == Changelog ==
+
+= 1.4.1 =
+* Bug fix
 
 = 1.4 =
 * Added shortcode support: [google-map]
