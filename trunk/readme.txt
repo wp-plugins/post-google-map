@@ -3,8 +3,8 @@ Contributors: williamsba1, wds-scott, messenlehner
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3084056
 Tags: map, google, posts, plot, widget, address, API, sidebar
 Requires at least: 2.6
-Tested up to: 2.8.3
-Stable tag: 1.4.2.0
+Tested up to: 2.8.4
+Stable tag: 1.4.3.0
 
 Add addresses to posts and pages.  Addresses are displayed plotted on a Google Map in a sidebar widget or directly in the post.
 
@@ -16,7 +16,7 @@ You can also set a custom title and description for each address saved. If no ti
 
 Custom plot markers can be upload to the markers folder.
 
-Works with WordPress and WordPress MU 2.8.3
+Works with WordPress and WordPress MU 2.8.4
 
 == Screenshots ==
 
@@ -25,6 +25,9 @@ Works with WordPress and WordPress MU 2.8.3
 3. Settings page showing multiple options for the map display
 
 == Changelog ==
+
+= 1.4.3 =
+* Fixed "headers already sent" error when deleting addresses
 
 = 1.4.2 =
 * updated marker path for subdirectories
