@@ -6,10 +6,9 @@ if (is_object($post_id)){
     $title=get_the_title($post_id->ID);
     $link=get_permalink($post_id->ID);
 }
-
+//echo "$post_id".$post_id;
 $gmp_arr = get_post_meta($post_id, 'gmp_arr', false);
 
-						
 If (is_array($gmp_arr)) {
     for ($row = 0; $row < count($gmp_arr); $row++)
     {
@@ -53,28 +52,28 @@ If (is_array($gmp_arr)) {
         //set markers if coords exist
         if (($gmp_arr[$row]["gmp_long"]!="") && ($gmp_arr[$row]["gmp_lat"]!="")){
             $x=$x+1;
-            $JS.="var point = new GPoint(".$gmp_arr[$row]["gmp_lat"].", ".$gmp_arr[$row]["gmp_long"].");";
-            $JS.="var icon = new GIcon();";
-            $JS.="icon.image = '".$imgpath.$gmp_arr[$row]["gmp_marker"]."';";
-            $JS.="icon.iconAnchor = new GPoint(15, 35);";
-            $JS.="var marker".$x." = new GMarker(point,icon);";
+            $JS.="var point".$rn." = new GPoint(".$gmp_arr[$row]["gmp_lat"].", ".$gmp_arr[$row]["gmp_long"].");";
+            $JS.="var icon".$rn." = new GIcon();";
+            $JS.="icon".$rn.".image = '".$imgpath.$gmp_arr[$row]["gmp_marker"]."';";
+            $JS.="icon".$rn.".iconAnchor = new GPoint(15, 35);";
+            $JS.="var marker".$rn."".$x." = new GMarker(point".$rn.",icon".$rn.");";
 
-            $JS.="GEvent.addListener(marker".$x.", 'click', function() {";
+            $JS.="GEvent.addListener(marker".$rn."".$x.", 'click', function() {";
                 //$JS.="map.openInfoWindowHtml(marker".$x.".getPoint(), html".$x.");";
                 $JS.="location.href='".$link."';";
             $JS.="});";
 
-            $JS.="GEvent.addListener(marker".$x.", 'mouseover', function() {";
-                $JS.="var info = document.getElementById('map-info');";
-                $JS.="info.innerHTML = '".$html."';";
+            $JS.="GEvent.addListener(marker".$rn."".$x.", 'mouseover', function() {";
+                $JS.="var info".$rn." = document.getElementById('map-info".$rn."');";
+                $JS.="info".$rn.".innerHTML = '".str_replace('[google-map]', '', $html)."';";
 				if ($bm==""){
 					$Default_HTML=$html;
 					$bm=1;
 				}
             $JS.="});";
 
-            $JS.="map.addOverlay(marker".$x.");";
-            $JS.="bounds.extend(marker".$x.".getPoint());";
+            $JS.="map".$rn.".addOverlay(marker".$rn."".$x.");";
+            $JS.="bounds".$rn.".extend(marker".$rn."".$x.".getPoint());";
 
         }
     }

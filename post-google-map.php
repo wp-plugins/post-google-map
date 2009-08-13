@@ -3,12 +3,12 @@
 Plugin Name: Post Google Map
 Plugin URI: http://webdevstudios.com/support/wordpress-plugins/
 Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Use shortcode [google-map] to display map directly in your post/page.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
-Version: 1.4.1
+Version: 1.4.2.0
 Author: WebDevStudios.com
 Author URI: http://webdevstudios.com
 */
 
-$gmp_version = "1.4.1";
+$gmp_version = "1.4";
 //hook for adding admin menus
 add_action('admin_menu', 'gmp_menu');
 
@@ -151,7 +151,6 @@ function gmp_widget_init() {
 			$themap.="<script src='http://maps.google.com/maps?file=api&v=1&key=".$key."' type='text/javascript'></script>";
 			$themap.="<body onUnload='GUnload()'>";
 			
-			//temp code to increase height on shortcode map / next update will include shortcode parameters
 			if ($map_type=="short_code") {
 				$themap.="<div id='map".$rn."' style='width:100%;height:400px;'></div>";
 			}Else{
@@ -203,7 +202,7 @@ function del_gmp_address($deladdy) {
 					add_post_meta($id, 'gmp_arr', $gmp_arr[$row]);
 				}
 			}
-			//echo "<div id=message class=updated fade>Address deleted successfully.</div>";
+			echo "<div id=message class=updated fade>Address deleted successfully.</div>";
 			$isdeleted = true;
 		}
 	}
@@ -379,7 +378,7 @@ function gmp() {
             <td>
             	<select name="gmp_marker">
                 	<?php
-					$dir = $_SERVER["DOCUMENT_ROOT"].'/wp-content/plugins/post-google-map/markers/';
+					$dir = WP_PLUGIN_DIR.'/post-google-map/markers/';
 					$x=0;
 					if (is_dir($dir)){
 						if ($handle = opendir($dir)) {
