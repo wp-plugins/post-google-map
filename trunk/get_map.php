@@ -26,14 +26,14 @@ If (is_array($gmp_arr)) {
                 $query = "SELECT post_excerpt,post_content FROM wp_posts WHERE ID = " . $post_id;
                 $result = $wpdb->get_results($query, ARRAY_A);
                 $excerpt = $result[0]['post_excerpt'];
-                $content = $result[0]['post_content'];
+                $icontent = $result[0]['post_content'];
 				//clean up desc
-				$content = scrub_data($content);
+				$icontent = scrub_data($icontent);
 				$ran=1;
             }
 			$iDesc=$excerpt;
 			if ($iDesc==""){
-                $iDesc=getWords($content, 5);
+                $iDesc=getWords($icontent, 5);
 			}
 		}
         if ($iDesc!=""){
