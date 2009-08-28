@@ -3,12 +3,12 @@
 Plugin Name: Post Google Map
 Plugin URI: http://webdevstudios.com/support/wordpress-plugins/
 Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Use shortcode [google-map] to display map directly in your post/page.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
-Version: 1.4.4.0
+Version: 1.4.5
 Author: WebDevStudios.com
 Author URI: http://webdevstudios.com
 */
 
-$gmp_version = "1.4.4";
+$gmp_version = "1.4.5";
 //hook for adding admin menus
 add_action('admin_menu', 'gmp_menu');
 
@@ -57,6 +57,25 @@ function scrub_data($content){
 	$content = str_replace($search, $replace, $content);
 	$content = str_replace("'", "\'", $content);
 	return $content;
+}
+
+function gmp_widget_options() {
+	//widget options form
+	if ($_POST['gmp_form_submit']) {
+		update_option('gmp_widget_title', $_POST['gmp_widget_title'] );
+	}
+	//load widget title
+	$gmp_widget_title = get_option('gmp_widget_title');
+	?>
+	<div>
+         <label for="cc_form_title">
+          <strong><?php _e('Title:'); ?></strong>
+        </label>
+        <input style="width: 100%; margin-bottom:1em;" id="gmp_widget_title" name="gmp_widget_title" type="text" value="<?php echo htmlspecialchars(stripslashes($gmp_widget_title)); ?>" />
+        Setting a title will override category tabs from displaying
+        <input type="hidden" name="gmp_form_submit" value="Submit" />
+    </div>
+	<?php		 
 }
 
 function gmp_widget_init() {
@@ -120,7 +139,6 @@ function gmp_widget_init() {
 			//if viewing a single post don't load plots by categories
 			$x=1;
 			//shortcode
-			//echo $content;
 			if ($content!="xxx") {
 				$map_type="short_code";
 				include("get_map.php");
@@ -146,8 +164,18 @@ function gmp_widget_init() {
 			$JS.="map".$rn.".zoomOut(); ";
 
 			$JS = $map.$JS;
-			//echo $CT;
-			$themap=$CT;
+
+			$themap = '<li id="post-google-map" class="widget widget_gmp">';
+
+			//check if widget title exists, if so use it
+			$gmp_widget_title = get_option('gmp_widget_title');
+			If ($gmp_widget_title != "") {
+				$themap.='<h2 class="title">'.$gmp_widget_title.'</h2>';
+			}Else{
+				//display the category tabs instead
+				$themap.=$CT;
+			}
+
 			$themap.="<script src='http://maps.google.com/maps?file=api&v=1&key=".$key."' type='text/javascript'></script>";
 			$themap.="<body onUnload='GUnload()'>";
 			
@@ -162,6 +190,7 @@ function gmp_widget_init() {
 			$themap.="var info".$rn." = document.getElementById('map-info".$rn."');";
 			$themap.="info".$rn.".innerHTML = '".str_replace('[google-map]', '', $Default_HTML)."';";
 			$themap.="</script>";
+			$themap.="</li>";
 			if ($map_type=="short_code") {
 				return str_replace('[google-map]', $themap, $content);
 			}else{
@@ -174,6 +203,7 @@ function gmp_widget_init() {
 		  wp_register_sidebar_widget(sanitize_title('Post Google Map' ), 'Post Google Map', 'gmp_widget_init2', array(), 1);
 		else
 		  register_sidebar_widget('Post Google Map', 'gmp_widget_init2', 1);
+		  register_widget_control('Post Google Map', 'gmp_widget_options');
 
 }
 
