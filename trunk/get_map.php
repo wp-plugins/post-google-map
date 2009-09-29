@@ -14,7 +14,7 @@ If (is_array($gmp_arr)) {
     {
 		$y=$y+1;
 		$html="<table width=100%><tr>";
-        $iTitle=scrub_data($gmp_arr[$row]["gmp_title"]);
+        $iTitle=esc_attr($gmp_arr[$row]["gmp_title"]);
         $iDesc=$gmp_arr[$row]["gmp_description"];
         $iDesc_Show=$gmp_arr[$row]["gmp_desc_show"];
         if ($iTitle==""){
@@ -28,7 +28,7 @@ If (is_array($gmp_arr)) {
                 $excerpt = $result[0]['post_excerpt'];
                 $icontent = $result[0]['post_content'];
 				//clean up desc
-				$icontent = scrub_data($icontent);
+				$icontent = esc_attr($icontent);
 				$ran=1;
             }
 			$iDesc=$excerpt;
@@ -38,7 +38,7 @@ If (is_array($gmp_arr)) {
 		}
         if ($iDesc!=""){
             //echo $iDesc."<br>";
-			$iDesc = scrub_data($iDesc);
+			$iDesc = esc_attr($iDesc);
 			//echo $iDesc;
 			$html.="<br>".$iDesc;
         }
