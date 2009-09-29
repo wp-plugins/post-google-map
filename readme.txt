@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: map, google, posts, plot, widget, address, API, sidebar
 Requires at least: 2.6
 Tested up to: 2.8.4
-Stable tag: 1.4.5.0
+Stable tag: 1.5.0.0
 
 Add multiple addresses to a post/page.  Addresses will be plotted on a Google Map in your post/page or in the Post Google Map sidebar widget.
 
@@ -14,7 +14,7 @@ This plugin allows you to add multiple addresses to a post/page and have those a
 Hovering over a plot will display the title of the post, address, and also a thumbnail from the post if any images exist. Easily add and delete a single or multiple addresses to each post/page. Viewing a single post/page displays only addresses attached to that post/page, viewing anything else will show the most recent plots across your entire site.
 You can also set a custom title and description for each address saved. If no title or description is entered the post title and excerpt will be used.
 
-Custom plot markers can be upload to the markers folder.
+Custom plot markers can be upload to the /markers folder.
 
 Works with WordPress and WordPress MU 2.8.4
 
@@ -25,6 +25,12 @@ Works with WordPress and WordPress MU 2.8.4
 3. Settings page showing multiple options for the map display
 
 == Changelog ==
+
+= 1.5 =
+* Added in security checks on all content being passed to and from the plugin
+* Switched settings to be stored in an array
+* Optimized the plugin in different areas for speed
+* Some minor bug fixes
 
 = 1.4.5 =
 * Added a title option on the Post Google Map widget

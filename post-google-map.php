@@ -3,14 +3,17 @@
 Plugin Name: Post Google Map
 Plugin URI: http://webdevstudios.com/support/wordpress-plugins/
 Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Use shortcode [google-map] to display map directly in your post/page.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
-Version: 1.4.5
+Version: 1.5
 Author: WebDevStudios.com
 Author URI: http://webdevstudios.com
 */
 
-$gmp_version = "1.4.5";
+$gmp_version = "1.5";
 //hook for adding admin menus
 add_action('admin_menu', 'gmp_menu');
+
+//hook for adding a new address
+add_action('admin_menu', 'gmp_add_new_address');
 
 //hook for post/page custom meta box
 add_action('admin_menu', 'gmp_meta_box_add');
@@ -21,22 +24,18 @@ add_filter('the_content', 'gmp_widget');
 //hook for loading widget
 add_action('plugins_loaded', 'gmp_widget_init');
 
-//save/update post/page custom fields from meta box
-$gmp_submit = $_POST["gmp_submit"];
-If (isset($gmp_submit) && !empty($gmp_submit)) {
-	post_meta_tags();
+//save/update post/page address fields from meta box
+function gmp_add_new_address() {
+	$gmp_submit = $_POST["gmp_submit"];
+	If (isset($gmp_submit) && !empty($gmp_submit) ) {
+		post_meta_tags();
+	}
 }
 
 //add_action('edit_post', 'post_meta_tags');
 //add_action('publish_post', 'post_meta_tags');
 //add_action('save_post', 'post_meta_tags');
 //add_action('edit_page_form', 'post_meta_tags');
-
-//call function to delete an address
-If ($_GET['deladdy'] != "" && $isdeleted != true) {
-	$deladdy = $_GET['deladdy'];
-	del_gmp_address($deladdy);
-}
 
 function getWords($text, $limit)
 {
@@ -50,19 +49,10 @@ function getWords($text, $limit)
 	return implode(" ", $array);
 }
 
-function scrub_data($content){
-	$content = strip_tags($content);
-	$search = array("\r\n", "\n", "\r");
-	$replace = '';
-	$content = str_replace($search, $replace, $content);
-	$content = str_replace("'", "\'", $content);
-	return $content;
-}
-
 function gmp_widget_options() {
 	//widget options form
 	if ($_POST['gmp_form_submit']) {
-		update_option('gmp_widget_title', $_POST['gmp_widget_title'] );
+		update_option('gmp_widget_title', esc_attr($_POST['gmp_widget_title']) );
 	}
 	//load widget title
 	$gmp_widget_title = get_option('gmp_widget_title');
@@ -89,16 +79,18 @@ function gmp_widget_init() {
 			global $wpdb;
 			global $post;
 			
-			$key = get_option('post_gmp_params');
+			$options_arr = get_option('gmp_params');
+			
+			$key = $options_arr["post_gmp_params"];
 			$imgpath = WP_PLUGIN_URL . '/post-google-map/markers/';
 
-			$gmp_map_type = get_option('post_gmp_map_type');
-			$gmp_cats = get_option('post_gmp_cats');
-			$gmp_wordpress_loop = get_option('gmp_wordpress_loop');
-			$gmp_categories = get_option('gmp_categories');
-			$gmp_hide = get_option('gmp_hide');
-			$gmp_marker_max = get_option('gmp_marker_max');
-			$gmp_marker_order = get_option('gmp_marker_order');
+			$gmp_map_type = $options_arr["post_gmp_map_type"];
+			$gmp_cats = $options_arr["post_gmp_cats"];
+			$gmp_wordpress_loop = $options_arr["gmp_wordpress_loop"];
+			$gmp_categories = $options_arr["gmp_categories"];
+			$gmp_hide = $options_arr["gmp_hide"];
+			$gmp_marker_max = $options_arr["gmp_marker_max"];
+			$gmp_marker_order = $options_arr["gmp_marker_order"];
 
 			//random number for multiple map display
 			srand ((double) microtime( )*1000000);
@@ -208,13 +200,10 @@ function gmp_widget_init() {
 }
 
 function gmp_meta_box_add() {
-	// Check whether the 2.5 function add_meta_box exists, and if it doesn't use 2.3 functions.
+	// Check whether the 2.5 function add_meta_box exists before adding the meta box
 	if ( function_exists('add_meta_box') ) {
 		add_meta_box('gmp','Post Google Map','gmp','post');
 		add_meta_box('gmp','Post Google Map','gmp','page');
-	} else {
-		//add_action('dbx_post_advanced', array($aiosp, 'add_meta_tags_textinput'));
-		//add_action('dbx_page_advanced', array($aiosp, 'add_meta_tags_textinput'));
 	}
 }
 
@@ -239,99 +228,113 @@ function del_gmp_address($deladdy) {
 }
 
 function post_meta_tags() {
-	global $wpdb, $alreadyran;
-	$gmp_id = $_POST["gmp_id"];
-
-	//if post not created yet create it
-	if ($gmp_id==0){
-		$title=$_POST["post_title"];
-		$sql = "SELECT ID FROM ".$wpdb->prefix."posts order by ID desc LIMIT 1";
-		$rs = mysql_query($sql);
-		if ($rs) {
-			while ($r = mysql_fetch_assoc($rs)) {
-				$gmp_id=$r['ID'];
+	//verify user is on the admin dashboard and at least a contributor
+	If ( is_admin() && current_user_can('level_1') ) {
+		global $wpdb, $alreadyran;
+		$gmp_id = $_POST["gmp_id"];
+	
+		//if post not created yet create it
+		if ($gmp_id==0){
+			$title=$_POST["post_title"];
+			$sql = "SELECT ID FROM ".$wpdb->prefix."posts order by ID desc LIMIT 1";
+			$rs = mysql_query($sql);
+			if ($rs) {
+				while ($r = mysql_fetch_assoc($rs)) {
+					$gmp_id=$r['ID'];
+				}
 			}
 		}
-	}
-
-	//save the form data from the post/page meta box
-	if (isset($gmp_id) && !empty($gmp_id) && $alreadyran != "1") {
-		$id = $gmp_id;
-		$alreadyran = "1";
-
-		//get post data
-		$gmp_long = $_POST["gmp_long"];
-		$gmp_lat = $_POST["gmp_lat"];
-		$gmp_address1 = $_POST["gmp_address1"];
-		$gmp_address2 = $_POST["gmp_address2"];
-		$gmp_city = $_POST["gmp_city"];
-		$gmp_state = $_POST["gmp_state"];
-		$gmp_zip = $_POST["gmp_zip"];
-		$gmp_marker = $_POST["gmp_marker"];
-		$gmp_title = $_POST["gmp_title"];
-		$gmp_description = $_POST["gmp_description"];
-		$gmp_desc_show = $_POST["gmp_desc_show"];
-
-		//get long & lat BRM
-		if (isset($gmp_long) && !empty($gmp_long) && isset($gmp_lat) && !empty($gmp_lat)) {
-		}elseif (isset($gmp_address1) && !empty($gmp_address1)){
-			$key = get_option('post_gmp_params');
-			$addressarr = array($gmp_address1, $gmp_city, $gmp_state, $gmp_zip);
-			$address = IMPLODE(",", $addressarr);
-			$iaddress = "http://maps.google.com/maps/geo?q=".urlencode($address)."&output=csv&key=".$key."";
-			//$csv = file_get_contents($iaddress);
-
-			//use the WordPress HTTP API to call the Google Maps API and get coordinates
-			$csv = wp_remote_get($iaddress);
-			$csv = $csv["body"];
-
-			$csvSplit = split(",", $csv);
-			$status = $csvSplit[0];
-
-			$lat = $csvSplit[2];
-			$lng = $csvSplit[3];
-			if (strcmp($status, "200") == 0){
-				// successful
+	
+		//save the form data from the post/page meta box
+		if (isset($gmp_id) && !empty($gmp_id) && $alreadyran != "1") {
+			$id = $gmp_id;
+			$alreadyran = "1";
+	
+			//get post data
+			$gmp_long = esc_attr($_POST["gmp_long"]);
+			$gmp_lat = esc_attr($_POST["gmp_lat"]);
+			$gmp_address1 = esc_attr($_POST["gmp_address1"]);
+			$gmp_address2 = esc_attr($_POST["gmp_address2"]);
+			$gmp_city = esc_attr($_POST["gmp_city"]);
+			$gmp_state = esc_attr($_POST["gmp_state"]);
+			$gmp_zip = esc_attr($_POST["gmp_zip"]);
+			$gmp_marker = esc_attr($_POST["gmp_marker"]);
+			$gmp_title = esc_attr($_POST["gmp_title"]);
+			$gmp_description = esc_attr($_POST["gmp_description"]);
+			$gmp_desc_show = esc_attr($_POST["gmp_desc_show"]);
+	
+			//get long & lat BRM
+			if (isset($gmp_long) && !empty($gmp_long) && isset($gmp_lat) && !empty($gmp_lat)) {
+			}elseif (isset($gmp_address1) && !empty($gmp_address1)){
+				$options_arr = get_option('gmp_params');
+				$key = $options_arr["post_gmp_params"];
+				//$key = get_option('post_gmp_params');
+				$addressarr = array($gmp_address1, $gmp_city, $gmp_state, $gmp_zip);
+				$address = IMPLODE(",", $addressarr);
+				$iaddress = "http://maps.google.com/maps/geo?q=".urlencode($address)."&output=csv&key=".$key."";
+				//$csv = file_get_contents($iaddress);
+	
+				//use the WordPress HTTP API to call the Google Maps API and get coordinates
+				$csv = wp_remote_get($iaddress);
+				$csv = $csv["body"];
+	
+				$csvSplit = split(",", $csv);
+				$status = $csvSplit[0];
+	
 				$lat = $csvSplit[2];
 				$lng = $csvSplit[3];
+				if (strcmp($status, "200") == 0){
+					// successful
+					$lat = $csvSplit[2];
+					$lng = $csvSplit[3];
+				}
+				$gmp_long=$lat;
+				$gmp_lat=$lng;
 			}
-			$gmp_long=$lat;
-			$gmp_lat=$lng;
+	
+			//create an array from the post data and long/lat from Google
+			$gmp_arr=array(
+				"gmp_long"=>$gmp_long,
+				"gmp_lat"=>$gmp_lat,
+				"gmp_address1"=>$gmp_address1,
+				"gmp_address2"=>$gmp_address2,
+				"gmp_city"=>$gmp_city,
+				"gmp_state"=>$gmp_state,
+				"gmp_zip"=>$gmp_zip,
+				"gmp_marker"=>$gmp_marker,
+				"gmp_title"=>$gmp_title,
+				"gmp_description"=>$gmp_description,
+				"gmp_desc_show"=>$gmp_desc_show,
+				);
+	
+			//save address array as option gmp_arr
+			add_post_meta($id, 'gmp_arr', $gmp_arr);
+			//echo "<div id=message class=updated fade>Address added successfully.</div>";
 		}
-
-		//create an array from the post data and long/lat from Google
-		$gmp_arr=array(
-			"gmp_long"=>$gmp_long,
-			"gmp_lat"=>$gmp_lat,
-			"gmp_address1"=>$gmp_address1,
-			"gmp_address2"=>$gmp_address2,
-			"gmp_city"=>$gmp_city,
-			"gmp_state"=>$gmp_state,
-			"gmp_zip"=>$gmp_zip,
-			"gmp_marker"=>$gmp_marker,
-			"gmp_title"=>$gmp_title,
-			"gmp_description"=>$gmp_description,
-			"gmp_desc_show"=>$gmp_desc_show,
-			);
-
-		//save address array as option gmp_arr
-		add_post_meta($id, 'gmp_arr', $gmp_arr);
-		//echo "<div id=message class=updated fade>Address added successfully.</div>";
 	}
-
 }
 
 function gmp() {
-
 	global $post;
+
+	//call function to delete an address
+	If ($_GET['deladdy'] != "" && $isdeleted != true) {
+		//verify user is at least a contributor and on the WP dashboard to allow deleting an address
+		If ( is_admin() && current_user_can('level_1') ) {
+			check_admin_referer('delete-address');
+			$deladdy = $_GET['deladdy'];
+			del_gmp_address($deladdy);
+		}
+	}
 
 	$post_id = $post;
 	if (is_object($post_id)){
 		$post_id = $post_id->ID;
 	}
 
-	$gmp_api_key = get_option('post_gmp_params');
-
+	$options_arr = get_option('gmp_params');
+	$gmp_api_key = $options_arr["post_gmp_params"];
+	
 	$gmp_arr = get_post_meta($post_id, 'gmp_arr', false);
 
 	$imgpath = WP_PLUGIN_URL . '/post-google-map/markers/';
@@ -370,9 +373,10 @@ function gmp() {
 				}else{\
 					$bgc="";
 				}
+				$gmp_action = "delete-address";
 				?>
                     <tr style="background:<?php echo $bgc;?> !important;" bgcolor="<?php echo $bgc;?>">
-                        <td><a title="Delete Address" href="<?php echo add_query_arg ("deladdy", $row); ?>"><img width="15px" border="0" src="<?php echo WP_PLUGIN_URL . '/post-google-map/delete.png';?>"></a></td>
+                        <td><a title="Delete Address" href="<?php echo wp_nonce_url(add_query_arg ("deladdy", $row), $gmp_action); ?>"><img width="15px" border="0" src="<?php echo WP_PLUGIN_URL . '/post-google-map/delete.png';?>"></a></td>
                     	<td><img width="25px" src="<?php echo $imgpath.$gmp_arr[$row]["gmp_marker"]; ?>"></td>
                         <td><?php echo $gmp_arr[$row]["gmp_address1"]; ?></td>
                         <td><?php echo $gmp_arr[$row]["gmp_address2"]; ?></td>
@@ -485,19 +489,25 @@ function gmp_menu() {
 }
 
 //Function to save the plugin settings
-function update_options()
+function gmp_update_options()
 {
 	check_admin_referer('gmp_check');
-	$options = $_POST['google_api_key'];
-	update_option('post_gmp_params', $options);
-	update_option('post_gmp_cats', $_POST['gmp_cats'] );
-	update_option('post_gmp_map_type', $_POST['gmp_map_type'] );
-	update_option('gmp_wordpress_loop', $_POST['gmp_wordpress_loop'] );
-	update_option('gmp_categories', $_POST['gmp_categories'] );
-	update_option('gmp_hide', $_POST['gmp_hide'] );
-	update_option('gmp_marker_max', $_POST['gmp_marker_max'] );
-	update_option('gmp_marker_order', $_POST['gmp_marker_order'] );
-} # update_options()
+
+	//create array for storing option values
+	$wds_gmp_arr=array(
+		"post_gmp_params"=>esc_attr($_POST['google_api_key']),
+		"post_gmp_cats"=>esc_attr($_POST['gmp_cats']),
+		"post_gmp_map_type"=>esc_attr($_POST['gmp_map_type']),
+		"gmp_wordpress_loop"=>esc_attr($_POST['gmp_wordpress_loop']),
+		"gmp_categories"=>esc_attr($_POST['gmp_categories']),
+		"gmp_hide"=>esc_attr($_POST['gmp_hide']),
+		"gmp_marker_max"=>esc_attr($_POST['gmp_marker_max']),
+		"gmp_marker_order"=>esc_attr($_POST['gmp_marker_order']),
+		);
+	
+	//save array as option
+	update_option('gmp_params', $wds_gmp_arr);
+} # gmp_update_options()
 
 
 function gmp_options() {
@@ -508,7 +518,7 @@ function gmp_options() {
 			&& $_POST['update_gmp_options']
 			)
 		{
-			update_options();
+			gmp_update_options();
 
 			echo "<div class=\"updated\">\n"
 				. "<p>"
@@ -519,14 +529,17 @@ function gmp_options() {
 				. "</div>\n";
 		}
 
-	$options = get_option('post_gmp_params');
-	$options_cats = get_option('post_gmp_cats');
-	$options_map_type = get_option('post_gmp_map_type');
-	$gmp_wordpress_loop = get_option('gmp_wordpress_loop');
-	$gmp_categories = get_option('gmp_categories');
-	$gmp_hide = get_option('gmp_hide');
-	$gmp_marker_max = get_option('gmp_marker_max');
-	$gmp_marker_order = get_option('gmp_marker_order');
+	//load plugin settings
+	$options_arr = get_option('gmp_params');
+			
+	$options = $options_arr["post_gmp_params"];
+	$options_cats = $options_arr["post_gmp_cats"];
+	$options_map_type = $options_arr["post_gmp_map_type"];
+	$gmp_wordpress_loop = $options_arr["gmp_wordpress_loop"];
+	$gmp_categories = $options_arr["gmp_categories"];
+	$gmp_hide = $options_arr["gmp_hide"];
+	$gmp_marker_max = $options_arr["gmp_marker_max"];
+	$gmp_marker_order = $options_arr["gmp_marker_order"];
 
 	echo '<div class="wrap">';
 	echo '<h2>' . __('Post Google Map Settings') . '</h2>';
@@ -571,7 +584,7 @@ function gmp_options() {
     <tr>
 			<td align="right" valign="top">Category Tabs:</td>
 			<td valign="top">
-				<input type="text" name="gmp_cats" value="<?php echo get_option('post_gmp_cats'); ?>">*Category IDs(ie 1,2,3)
+				<input type="text" name="gmp_cats" value="<?php echo $options_cats; ?>">*Category IDs(ie 1,2,3)
 			</td>
 	</tr>
 
@@ -637,6 +650,54 @@ function gmp_get_post_image($post_id, $width=0, $height=0) {
 				}
 			}
 		endwhile;
+	}
+}
+
+// Install/Uninstall Plugin
+register_activation_hook(__FILE__,'gmp_install');
+//register_deactivation_hook(__FILE__,'gmp_uninstall'); //coming soon
+
+function gmp_install () {
+	//load settings option array
+	$options_arr = get_option('gmp_params');
+	
+	//check if settings array is set
+	//if not we need to upgrade the settings to the new array
+	If (!is_array($options_arr) ) {
+		//load current settings
+		$key = get_option('post_gmp_params');
+		$gmp_map_type = get_option('post_gmp_map_type');
+		$gmp_cats = get_option('post_gmp_cats');
+		$gmp_wordpress_loop = get_option('gmp_wordpress_loop');
+		$gmp_categories = get_option('gmp_categories');
+		$gmp_hide = get_option('gmp_hide');
+		$gmp_marker_max = get_option('gmp_marker_max');
+		$gmp_marker_order = get_option('gmp_marker_order');
+		
+		//create array for storing option values with current settings
+		$wds_gmp_arr=array(
+			"post_gmp_params"=>esc_attr($key),
+			"post_gmp_cats"=>esc_attr($gmp_cats),
+			"post_gmp_map_type"=>esc_attr($gmp_map_type),
+			"gmp_wordpress_loop"=>esc_attr($gmp_wordpress_loop),
+			"gmp_categories"=>esc_attr($gmp_categories),
+			"gmp_hide"=>esc_attr($gmp_hide),
+			"gmp_marker_max"=>esc_attr($gmp_marker_max),
+			"gmp_marker_order"=>esc_attr($gmp_marker_order),
+			);
+		
+		//save array as option
+		update_option('gmp_params', $wds_gmp_arr);
+		
+		//delete original settings
+		delete_option('post_gmp_params');
+		delete_option('post_gmp_map_type');
+		delete_option('post_gmp_cats');
+		delete_option('gmp_wordpress_loop');
+		delete_option('gmp_categories');
+		delete_option('gmp_hide');
+		delete_option('gmp_marker_max');
+		delete_option('gmp_marker_order');
 	}
 }
 ?>
