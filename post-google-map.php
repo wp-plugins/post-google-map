@@ -3,12 +3,12 @@
 Plugin Name: Post Google Map
 Plugin URI: http://webdevstudios.com/support/wordpress-plugins/
 Description: Plugin allows posts to be linked to specific addresses and coordinates and display plotted on a Google Map.  Use shortcode [google-map] to display map directly in your post/page.  Map shows plots for each post with filter options and preview when hovered. <a href="options-general.php?page=post-google-map/post-google-map.php">Plugin Settings</a> |
-Version: 1.5
+Version: 1.5.1
 Author: WebDevStudios.com
 Author URI: http://webdevstudios.com
 */
 
-$gmp_version = "1.5";
+$gmp_version = "1.5.1";
 //hook for adding admin menus
 add_action('admin_menu', 'gmp_menu');
 
@@ -65,7 +65,7 @@ function gmp_widget_options() {
         Setting a title will override category tabs from displaying
         <input type="hidden" name="gmp_form_submit" value="Submit" />
     </div>
-	<?php		 
+	<?php
 }
 
 function gmp_widget_init() {
@@ -78,9 +78,9 @@ function gmp_widget_init() {
 		function gmp_widget($content) {
 			global $wpdb;
 			global $post;
-			
+
 			$options_arr = get_option('gmp_params');
-			
+
 			$key = $options_arr["post_gmp_params"];
 			$imgpath = WP_PLUGIN_URL . '/post-google-map/markers/';
 
@@ -95,7 +95,7 @@ function gmp_widget_init() {
 			//random number for multiple map display
 			srand ((double) microtime( )*1000000);
 			$rn = rand( );
-			
+
 			//print out default categories
 			$CT="<div class='map_cats'>";
 			$cat=$_GET["cat"];
@@ -170,7 +170,7 @@ function gmp_widget_init() {
 
 			$themap.="<script src='http://maps.google.com/maps?file=api&v=1&key=".$key."' type='text/javascript'></script>";
 			$themap.="<body onUnload='GUnload()'>";
-			
+
 			if ($map_type=="short_code") {
 				$themap.="<div id='map".$rn."' style='width:100%;height:400px;'></div>";
 			}Else{
@@ -188,7 +188,7 @@ function gmp_widget_init() {
 			}else{
 				echo $themap;
 			}
-			
+
 		}
 
 		if ( function_exists('wp_register_sidebar_widget') ) // fix for wordpress 2.2.1
@@ -232,7 +232,7 @@ function post_meta_tags() {
 	If ( is_admin() && current_user_can('level_1') ) {
 		global $wpdb, $alreadyran;
 		$gmp_id = $_POST["gmp_id"];
-	
+
 		//if post not created yet create it
 		if ($gmp_id==0){
 			$title=$_POST["post_title"];
@@ -244,12 +244,12 @@ function post_meta_tags() {
 				}
 			}
 		}
-	
+
 		//save the form data from the post/page meta box
 		if (isset($gmp_id) && !empty($gmp_id) && $alreadyran != "1") {
 			$id = $gmp_id;
 			$alreadyran = "1";
-	
+
 			//get post data
 			$gmp_long = esc_attr($_POST["gmp_long"]);
 			$gmp_lat = esc_attr($_POST["gmp_lat"]);
@@ -262,7 +262,7 @@ function post_meta_tags() {
 			$gmp_title = esc_attr($_POST["gmp_title"]);
 			$gmp_description = esc_attr($_POST["gmp_description"]);
 			$gmp_desc_show = esc_attr($_POST["gmp_desc_show"]);
-	
+
 			//get long & lat BRM
 			if (isset($gmp_long) && !empty($gmp_long) && isset($gmp_lat) && !empty($gmp_lat)) {
 			}elseif (isset($gmp_address1) && !empty($gmp_address1)){
@@ -273,14 +273,14 @@ function post_meta_tags() {
 				$address = IMPLODE(",", $addressarr);
 				$iaddress = "http://maps.google.com/maps/geo?q=".urlencode($address)."&output=csv&key=".$key."";
 				//$csv = file_get_contents($iaddress);
-	
+
 				//use the WordPress HTTP API to call the Google Maps API and get coordinates
 				$csv = wp_remote_get($iaddress);
 				$csv = $csv["body"];
-	
+
 				$csvSplit = split(",", $csv);
 				$status = $csvSplit[0];
-	
+
 				$lat = $csvSplit[2];
 				$lng = $csvSplit[3];
 				if (strcmp($status, "200") == 0){
@@ -291,7 +291,7 @@ function post_meta_tags() {
 				$gmp_long=$lat;
 				$gmp_lat=$lng;
 			}
-	
+
 			//create an array from the post data and long/lat from Google
 			$gmp_arr=array(
 				"gmp_long"=>$gmp_long,
@@ -306,7 +306,7 @@ function post_meta_tags() {
 				"gmp_description"=>$gmp_description,
 				"gmp_desc_show"=>$gmp_desc_show,
 				);
-	
+
 			//save address array as option gmp_arr
 			add_post_meta($id, 'gmp_arr', $gmp_arr);
 			//echo "<div id=message class=updated fade>Address added successfully.</div>";
@@ -334,7 +334,7 @@ function gmp() {
 
 	$options_arr = get_option('gmp_params');
 	$gmp_api_key = $options_arr["post_gmp_params"];
-	
+
 	$gmp_arr = get_post_meta($post_id, 'gmp_arr', false);
 
 	$imgpath = WP_PLUGIN_URL . '/post-google-map/markers/';
@@ -504,7 +504,7 @@ function gmp_update_options()
 		"gmp_marker_max"=>esc_attr($_POST['gmp_marker_max']),
 		"gmp_marker_order"=>esc_attr($_POST['gmp_marker_order']),
 		);
-	
+
 	//save array as option
 	update_option('gmp_params', $wds_gmp_arr);
 } # gmp_update_options()
@@ -531,7 +531,7 @@ function gmp_options() {
 
 	//load plugin settings
 	$options_arr = get_option('gmp_params');
-			
+
 	$options = $options_arr["post_gmp_params"];
 	$options_cats = $options_arr["post_gmp_cats"];
 	$options_map_type = $options_arr["post_gmp_map_type"];
@@ -660,7 +660,7 @@ register_activation_hook(__FILE__,'gmp_install');
 function gmp_install () {
 	//load settings option array
 	$options_arr = get_option('gmp_params');
-	
+
 	//check if settings array is set
 	//if not we need to upgrade the settings to the new array
 	If (!is_array($options_arr) ) {
@@ -673,7 +673,7 @@ function gmp_install () {
 		$gmp_hide = get_option('gmp_hide');
 		$gmp_marker_max = get_option('gmp_marker_max');
 		$gmp_marker_order = get_option('gmp_marker_order');
-		
+
 		//create array for storing option values with current settings
 		$wds_gmp_arr=array(
 			"post_gmp_params"=>esc_attr($key),
@@ -685,10 +685,10 @@ function gmp_install () {
 			"gmp_marker_max"=>esc_attr($gmp_marker_max),
 			"gmp_marker_order"=>esc_attr($gmp_marker_order),
 			);
-		
+
 		//save array as option
 		update_option('gmp_params', $wds_gmp_arr);
-		
+
 		//delete original settings
 		delete_option('post_gmp_params');
 		delete_option('post_gmp_map_type');
