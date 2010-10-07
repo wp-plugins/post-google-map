@@ -1,5 +1,5 @@
 === Post Google Map ===
-Contributors: williamsba1, wds-scott, messenlehner
+Contributors: williamsba1, Messenlehner, wds-scott
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3084056
 Tags: map, google, posts, plot, widget, address, API, sidebar
 Requires at least: 2.6
