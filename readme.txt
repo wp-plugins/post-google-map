@@ -1,5 +1,5 @@
 === Post Google Map ===
-Contributors: williamsba1, Messenlehner, webdevstudios
+Contributors: williamsba1, Messenlehner, webdevstudios, tw2113
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3084056
 Tags: map, google, posts, plot, widget, address, API, sidebar, v3
 Requires at least: 3.0
@@ -13,7 +13,7 @@ Add multiple addresses to a post or page.  Addresses will be plotted on a Google
 
 This plugin allows you to add multiple addresses to a post/page and have those addresses automatically plotted on a Google Map in a sidebar widget or directly in the post/page. This is a great plugin to help localize your stories, events, news, etc.
 Easily add and delete a single or multiple addresses to each post/page. Viewing a single post/page displays only addresses attached to that post/page, viewing anything else will show the most recent plots across your entire site.
-You can also set a custom title and description for each address saved. 
+You can also set a custom title and description for each address saved.
 
 Custom plot markers can be upload to the /markers folder.
 
@@ -44,7 +44,7 @@ Custom plot markers can be upload to the /markers folder.
 * Added a title option on the Post Google Map widget
 
 = 1.4.4 =
-* Fixed a bug causing the content in a post without a shortcode to disappear 
+* Fixed a bug causing the content in a post without a shortcode to disappear
 
 = 1.4.3 =
 * Fixed "headers already sent" error when deleting addresses
