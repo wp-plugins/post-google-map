@@ -26,7 +26,7 @@ Custom plot markers can be upload to the /markers folder.
 == Changelog ==
 
 = 1.6.2 =
-* Adding Spanish Translations and .pot file.
+* Adding Spanish Translations and .pot file. Props Andrew Kurtis of http://www.webhostinghub.com/
 
 = 1.6.1 =
 * Fix map pin issue where multiple color selections didn't work
